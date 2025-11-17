@@ -1,0 +1,71 @@
+{
+	"sampleSheetPath" : "sampleSheet.csv",
+	"general" : {
+		"srcDirectory" : "Src/",
+		"readLen" : "50"
+	},
+	"software" : {
+		"bbmap" : "bbmap_3895",
+		"bowtie" : "bowtie2",
+		"bedtools" : "bedtools_230",
+		"deeptools" : "deeptools_3_5_1",
+		"fastqc" : "fastqc",
+		"fastqScreenEnv" : "fastq_screen",
+		"fastqScreenPath" : "~/.conda/envs/fastq_screen/bin/fastq_screen",
+		"fastqScreenConf" : "/athena/apostoloulab/scratch/collab/Software/fastq_screen.conf",
+		"featureCounts" : "featureCounts",
+		"macs" : "macs_226",
+		"multiqc" : "multiqc",
+		"picard" : "picard_2_26_10",
+		"r" : "r_base_412",
+		"samtools" : "samtools_v114",
+		"star" : "star_2_7_10",
+		"trim_galore" : "trim_galore"
+	},
+	"index" : {
+		"hg38" : {
+			"bowtie" : "/athena/apostoloulab/scratch/collab/Genome/HomoSapiens/UCSC/hg38/Sequence/Bowtie2Index/genome",
+			"fasta" : "/athena/apostoloulab/scratch/collab/Genome/HomoSapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa",
+			"chromSize" : "/athena/apostoloulab/scratch/collab/Genome/HomoSapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.all.sizes",
+			"genomeSize" : "2913022398",
+			"blacklist" : "/athena/apostoloulab/scratch/collab/Genome/HomoSapiens/hg38-blacklist.v2.bed"
+		},
+		"mm10_dm6_sacCer3_ecoli" : {
+			"bowtie": "/athena/apostoloulab/scratch/collab/Genome/Dm6_mm10_sacCer3_eColi/Bowtie2Index/genome",
+			"starRepAware" : "/athena/apostoloulab/scratch/collab/Genome/Dm6_mm10_sacCer3_eColi/StarRepAware/",
+			"fasta": "/athena/apostoloulab/scratch/collab/Genome/Dm6_mm10_sacCer3_eColi/WholeGenomeFasta/genome.fa",
+			"chromSize": "/athena/apostoloulab/scratch/collab/Genome/Dm6_mm10_sacCer3_eColi/WholeGenomeFasta/genome.sizes",
+			"blacklist" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/mm10-blacklist.v2_highSignalRegions.bed",
+			"genomeSize" : "2652783500"
+		},
+		"mm10" : {
+			"blacklist" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/mm10-blacklist.v2_highSignalRegions.bed",
+			"bowtie" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/Sequence/Bowtie2Index/genome",
+			"bwa" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/Sequence/BWAIndex/version0.6.0/genome.fa",
+			"chromSize" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/Sequence/WholeGenomeFasta/genome.sizes",
+			"fasta" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/Sequence/WholeGenomeFasta/genome.fa",
+			"starRepAware" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/Sequence/StarRepAware/",
+			"genomeSize" : "2652783500",
+			"gencode_gtf" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/gencode.vM25.annotation_sorted.gtf",
+			"tecount_gtf" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/TEcounts/mm10_rmsk_TE.gtf",
+			"refFlat" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/UCSC/mm10/Annotation/Genes/refFlat.txt",
+			"mse_cuts" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/mm10_msei_rest_site_positions.bed",
+			"nla_cuts" : "/athena/apostoloulab/scratch/collab/Genome/Mus_Musculus/mm10_nlaIII_rest_site_positions.bed"
+		},
+		"dm6" : { 
+			"bowtie" : "/athena/apostoloulab/scratch/collab/Genome/Dmel/UCSC/dm6/Sequence/Bowtie2Index/genome",
+			"fasta" : "/athena/apostoloulab/scratch/collab/Genome/Dmel/UCSC/dm6/Sequence/WholeGenomeFasta/genome.fa",
+			"chromSize" : "/athena/apostoloulab/scratch/collab/Genome/Dmel/UCSC/dm6/Sequence/WholeGenomeFasta/genome.sizes"
+		},
+		"ecoli" : { 
+			"bowtie" : "/athena/apostoloulab/scratch/collab/Genome/Ecoli/NCBI/2001-10-15/Sequence/Bowtie2Index/genome",
+			"fasta" : "/athena/apostoloulab/scratch/collab/Genome/Ecoli/NCBI/2001-10-15/Sequence/WholeGenomeFasta/genome.fa",
+			"chromSize" : "/athena/apostoloulab/scratch/collab/Genome/Ecoli/NCBI/2001-10-15/Sequence/WholeGenomeFasta/genome.sizes"
+		},
+		"sacCer3" : { 
+			"bowtie" : "/athena/apostoloulab/scratch/collab/Genome/SacCer/UCSC/sacCer3/Sequence/Bowtie2Index/genome",
+			"fasta" : "/athena/apostoloulab/scratch/collab/Genome/SacCer/UCSC/sacCer3/Sequence/WholeGenomeFasta/genome.fa",
+			"chromSize" : "/athena/apostoloulab/scratch/collab/Genome/SacCer/UCSC/sacCer3/Sequence/WholeGenomeFasta/genome.sizes"
+		}
+	}
+}

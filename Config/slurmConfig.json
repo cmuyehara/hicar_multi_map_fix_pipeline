@@ -1,0 +1,63 @@
+{
+	"__default__" : {
+		"partition" : "scu-cpu",
+		"account" : "apostoloulab",
+		"time" : "2:00:00",
+		"threads" : "1",
+		"mem" : "8G"
+	},
+	"adapter_trim_reads" : {
+		"time" : "4:00:00",
+		"threads" : "8"
+	},
+	"align_reads_bwa" : {
+		"mem" : "64G",
+		"threads" : "12",
+		"time" : "24:00:00"
+	},
+	"convert_sam_filter_and_sort_bam" : {
+		"threads" : "8",
+		"mem" : "4G"
+	},
+	"collect_multi_map_stats" : {
+		"time" : "1:00:00",
+		"mem" : "16G"
+	},
+	"filter_multimappers" : {
+		"mem" : "8G",
+		"time" : "4:00:00"
+	},
+	"sort_filtered_reads" : {
+		"threads" : "8"
+	},
+	"remove_duplicates" : {
+		"time" : "4:00:00",
+		"mem" : "32G"
+	},
+	"run_flagstat" : {
+		"time" : "1:00:00"
+	},
+	"collect_flagstats" : {
+		"time" : "1:00:00"
+	},
+	"build_matrix" : {
+		"threads" : "8",
+		"mem" : "64G",
+		"time" : "8:00:00"
+	},
+	"make_bigwig" : {
+		"time" : "2:00:00",
+		"mem" : "16G"
+	},
+	"fastqc" : {
+		"time" : "1:00:00",
+		"threads" : "8"	
+	},
+	"fastq_screen" : {
+		"time" : "2:00:00",
+		"threads" : "8"
+	},
+	"multiqc" : {
+		"time" : "1:00:00"
+	}
+}
