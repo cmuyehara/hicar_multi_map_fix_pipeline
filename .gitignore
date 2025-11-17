@@ -1,0 +1,15 @@
+Fastq/
+Bam/
+FastQC/
+BigWig/
+Err_Out/
+Sam/
+*err*
+*out*
+*log*
+*bam
+*fastq
+*fq.gz
+*fq
+*bw
+.snakemake/
