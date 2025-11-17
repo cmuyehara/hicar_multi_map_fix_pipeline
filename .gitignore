@@ -4,6 +4,8 @@ FastQC/
 BigWig/
 Err_Out/
 Sam/
+Test_Files/
+.snakemake/
 *err*
 *out*
 *log*
@@ -12,4 +14,5 @@ Sam/
 *fq.gz
 *fq
 *bw
-.snakemake/
+*tsv
+*csv
