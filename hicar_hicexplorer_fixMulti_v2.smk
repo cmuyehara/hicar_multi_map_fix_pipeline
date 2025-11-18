@@ -274,6 +274,35 @@ rule build_matrix:
             --binSize 5000 10000 20000 50000 100000
         """
 
+rule simplify_names:
+    """
+    Rename files to remove steps like 'bwa' and 'multi_filt' from the names. This is necessary b/c
+    snakemake has trouble parsing the wildcards when there are multiple optional parts in the names. 
+    """
+    input:
+        normal_bam = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam',
+        normal_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam.bai',
+        multi_bam = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam',
+        multi_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam.bai',
+        normal_bw = 'BigWig/{sample}_{read}.bwa.mapq.rpgcNorm.bw',
+        multi_bw = 'BigWig/{sample}_{read}.bwa.mapq.multi_filt.rpgcNorm.bw',
+    output:
+        multi_bam = 'Bam/{sample}_{read}_multi_filt_final.bam',
+        multi_bam_ind = 'Bam/{sample}_{read}_multi_filt_final.bam.bai',
+        normal_bam = 'Bam/{sample}_{read}_final.bam',
+        normal_bam_ind = 'Bam/{sample}_{read}_final.bam.bai',
+        multi_bw = 'BigWig/{sample}_{read}_multi_filt_rpgcNorm.bw',
+        normal_bw = 'BigWig/{sample}_{read}_rpgcNorm.bw',
+    shell:
+        """
+        mv {input.multi_bam} {output.multi_bam}
+        mv {input.multi_bam_ind} {output.multi_bam_ind}
+        mv {input.normal_bam} {output.normal_bam}
+        mv {input.normal_bam_ind} {output.normal_bam_ind}
+        mv {input.multi_bw} {output.multi_bw}
+        mv {input.normal_bw} {output.normal_bw}
+        """
+
 rule build_matrix_multi:
     conda: 'hicexplorer_v2_2'
     input:
@@ -315,8 +344,6 @@ rule build_matrix_multi:
             --QCfolder ${{qc_dir}} \\
             --binSize 5000 10000 20000 50000 100000
         """
-
-
 
 rule run_flagstat:
     conda: 'samtools'
@@ -386,34 +413,7 @@ rule make_bigwig:
           --effectiveGenomeSize {params.genomeSize} --extendReads 200 --ignoreDuplicates
         """
 
-rule simplify_names:
-    """
-    Rename files to remove steps like 'bwa' and 'multi_filt' from the names. This is necessary b/c
-    snakemake has trouble parsing the wildcards when there are multiple optional parts in the names. 
-    """
-    input:
-        normal_bam = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam',
-        normal_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam.bai',
-        multi_bam = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam',
-        multi_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam.bai',
-        normal_bw = 'BigWig/{sample}_{read}.bwa.mapq.rpgcNorm.bw',
-        multi_bw = 'BigWig/{sample}_{read}.bwa.mapq.multi_filt.rpgcNorm.bw',
-    output:
-        multi_bam = 'Bam/{sample}_{read}_multi_filt_final.bam',
-        multi_bam_ind = 'Bam/{sample}_{read}_multi_filt_final.bam.bai',
-        normal_bam = 'Bam/{sample}_{read}_final.bam',
-        normal_bam_ind = 'Bam/{sample}_{read}_final.bam.bai',
-        multi_bw = 'BigWig/{sample}_{read}_multi_filt_rpgcNorm.bw',
-        normal_bw = 'BigWig/{sample}_{read}_rpgcNorm.bw',
-    shell:
-        """
-        mv {input.multi_bam} {output.multi_bam}
-        mv {input.multi_bam_ind} {output.multi_bam_ind}
-        mv {input.normal_bam} {output.normal_bam}
-        mv {input.normal_bam_ind} {output.normal_bam_ind}
-        mv {input.multi_bw} {output.multi_bw}
-        mv {input.normal_bw} {output.normal_bw}
-        """
+
         #mv {input.normal_mcool} {output.normal_mcool}
         #mv {input.multi_mcool} {output.multi_mcool}
 
