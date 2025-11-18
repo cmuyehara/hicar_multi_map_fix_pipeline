@@ -37,9 +37,9 @@ step_list = [
 
 rule all:
     input:
-        # Trimmed Fastq files
+        ## Trimmed Fastq files
         expand('Fastq/{sample}_{read}_trim.fastq.gz', sample = sampleList, read = ['R1', 'R2']),
-        # Aligned, filtered, sorted BAM files
+        ## Aligned, filtered, sorted BAM files
         expand('Bam/{sample}.bwa.cSrt.bam', sample = sampleList),
         expand('Bam/{sample}_{read}.bwa.mapq.sync.nSrt.bam', read = ['R1', 'R2'], sample = sampleList),
         expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.nSrt.bam', read = ['R1', 'R2'], sample = sampleList),
@@ -47,22 +47,24 @@ rule all:
         expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam', sample = sampleList, read = ['R1', 'R2']),
-        # Matrix Files
-        expand('Matrix/{sample}.bwa.mapq.final.mcool', sample = sampleList),
-        expand('Matrix/{sample}.bwa.mapq.multi_filt.final.mcool', sample = sampleList),
+        ## Matrix Files
+        #expand('Matrix/{sample}.bwa.mapq.final.mcool', sample = sampleList),
+        #expand('Matrix/{sample}.bwa.mapq.multi_filt.final.mcool', sample = sampleList),
+        #expand('Matrix/{sample}{multi}final.mcool', sample = sampleList, multi = ['_', '_multi_filt_']),
+        expand('Matrix/{sample}_final.mcool', sample = sampleList),
         # Flagstat files
-        expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list),
+        #expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list),
         expand('FastQC/{sample}_flagstat_summary.tsv', sample = sampleList),
-        # Bigwigs
+        ## Bigwigs
         expand('BigWig/{sample}_{read}.bwa.{multi}.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2'], multi = ['mapq', 'mapq.multi_filt']),
-        # Final versions of files  
+        ## Final versions of files  
         expand('Bam/{sample}_{read}_multi_filt_final.bam', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}_multi_filt_final.bam.bai', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}_final.bam', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}_final.bam.bai', sample = sampleList, read = ['R1', 'R2']),
         expand('BigWig/{sample}_{read}_multi_filt_rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
         expand('BigWig/{sample}_{read}_rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
-        # QC
+        ## QC
         expand('FastQC/{sample}_{read}_trim_fastqc.html', sample = sampleList, read = ['R1', 'R2']),
         expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
         'FastQC/multiqc_report.html'
@@ -90,6 +92,7 @@ rule align_reads_bwa:
         r1 = 'Fastq/{sample}_R1_trim.fastq.gz',
         r2 = 'Fastq/{sample}_R2_trim.fastq.gz',
     output:
+        #temp('Bam/{sample}.bwa.sam')
         temp('Bam/{sample}.bwa.sam')
     params:
         index = config['index'][species]['bwa']
@@ -108,15 +111,20 @@ rule convert_sam_filter_and_sort_bam:
         'Bam/{sample}.bwa.sam'
     output:
         bam = 'Bam/{sample}.bwa.cSrt.bam',
-        mapq =     temp('Bam/{sample}.bwa.mapq.bam'),
-        r1_coord = temp('Bam/{sample}_R1.bwa.mapq.cSrt.bam'),
-        r2_coord = temp('Bam/{sample}_R2.bwa.mapq.cSrt.bam'),
-        r1_name =  temp('Bam/{sample}_R1.bwa.mapq.nSrt.bam'),
-        r2_name =  temp('Bam/{sample}_R2.bwa.mapq.nSrt.bam'),
+        mapq =     'Bam/{sample}.bwa.mapq.bam',
+        r1_coord = 'Bam/{sample}_R1.bwa.mapq.cSrt.bam',
+        r2_coord = 'Bam/{sample}_R2.bwa.mapq.cSrt.bam',
+        r1_name =  'Bam/{sample}_R1.bwa.mapq.nSrt.bam',
+        r2_name =  'Bam/{sample}_R2.bwa.mapq.nSrt.bam',
         bamIndex =      'Bam/{sample}.bwa.cSrt.bam.bai',
         mapqIndex =     'Bam/{sample}.bwa.mapq.bam.bai',
         r1_coordIndex = 'Bam/{sample}_R1.bwa.mapq.cSrt.bam.bai',
         r2_coordIndex = 'Bam/{sample}_R2.bwa.mapq.cSrt.bam.bai',
+        #mapq =     temp('Bam/{sample}.bwa.mapq.bam'),
+        #r1_coord = temp('Bam/{sample}_R1.bwa.mapq.cSrt.bam'),
+        #r2_coord = temp('Bam/{sample}_R2.bwa.mapq.cSrt.bam'),
+        #r1_name =  temp('Bam/{sample}_R1.bwa.mapq.nSrt.bam'),
+        #r2_name =  temp('Bam/{sample}_R2.bwa.mapq.nSrt.bam'),
     threads: 8
     params: 
         mapq = 5
@@ -153,7 +161,7 @@ rule filter_multimappers:
     input:
         'Bam/{sample}_{read}.bwa.mapq.nSrt.bam',
     output:
-        temp('Bam/{sample}_{read}.bwa.mapq.multi_filt.nSrt.bam'),
+        'Bam/{sample}_{read}.bwa.mapq.multi_filt.nSrt.bam',
     params:
         source_dir = 'Src/'
     shell:
@@ -166,14 +174,11 @@ rule sync_bams:
     conda: 'base'
     input:
         #'Bam/{sample}_bwa_mapq_R1{filter}.bam', sample = sampleList, filter = ['.srt', '.multi_filt.dedup'])
-        r1_filter = temp('Bam/{sample}_R1.bwa.{multi}.nSrt.bam'),
-        r2_filter = temp('Bam/{sample}_R2.bwa.{multi}.nSrt.bam'),
-
-        #r1_filter = temp('Bam/{sample}_R1.bwa.mapq{filter}.nSrt.bam'),
-        #r2_filter = temp('Bam/{sample}_R2.bwa.mapq{filter}.nSrt.bam'),
+        r1_filter = 'Bam/{sample}_R1.bwa.{multi}.nSrt.bam',
+        r2_filter = 'Bam/{sample}_R2.bwa.{multi}.nSrt.bam',
     output:
-        r1_sync = temp('Bam/{sample}_R1.bwa.{multi}.sync.nSrt.bam'),
-        r2_sync = temp('Bam/{sample}_R2.bwa.{multi}.sync.nSrt.bam'),
+        r1_sync = 'Bam/{sample}_R1.bwa.{multi}.sync.nSrt.bam',
+        r2_sync = 'Bam/{sample}_R2.bwa.{multi}.sync.nSrt.bam',
         #r1_sync = temp('Bam/{sample}_R1.bwa.mapq{filter}.sync.nSrt.bam'),
         #r2_sync = temp('Bam/{sample}_R2.bwa.mapq{filter}.sync.nSrt.bam'),
     params:
@@ -191,7 +196,7 @@ rule sort_filtered_reads:
     output:
         #bam = temp('Bam/{sample}_{read}.bwa.mapq{filter}.sync.cSrt.bam'),
         #bam_ind = 'Bam/{sample}_{read}.bwa.mapq{filter}.sync.cSrt.bam.bai'
-        bam = temp('Bam/{sample}_{read}.bwa.{multi}.sync.cSrt.bam'),
+        bam = 'Bam/{sample}_{read}.bwa.{multi}.sync.cSrt.bam',
         bam_ind = 'Bam/{sample}_{read}.bwa.{multi}.sync.cSrt.bam.bai',
     threads: 8
     shell:
@@ -230,10 +235,16 @@ rule index_bam:
 rule build_matrix:
     conda: 'hicexplorer_v2_2'
     input:
-        read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam.bai',
-        read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam.bai',
+        read_one = 'Bam/{sample}_R1_final.bam',
+        read_two = 'Bam/{sample}_R2_final.bam',
+        #read_one = 'Bam/{sample}_R1{multi}final.bam',
+        #read_two = 'Bam/{sample}_R2{multi}final.bam',
+        #'Bam/{sample}_R1_final.bam',
+        #'Bam/{sample}_R2_final.bam',
+        #read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam',
+        #read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam',
     output:
-        'Matrix/{sample}.bwa.{multi}.final.mcool',
+        'Matrix/{sample}_final.mcool',
     params:
         mse_seq = 'TTAA',
         nla_seq = 'CATG',
@@ -244,9 +255,10 @@ rule build_matrix:
     threads: 8
     shell:
         """
-        qc_dir=./hicQC_{wildcards.sample}_{wildcards.multi}
-        qc_dir=${{qc_dir//./_}}
-        if [[ !-d ${{qc_dir}} ]]; then
+        qc_dir=FastQC/hicQC_{wildcards.sample}_/
+        qc_dir=${{qc_dir/./_}}
+        echo ${{qc_dir}}
+        if [[ ! -d ${{qc_dir}} ]]; then
             mkdir ${{qc_dir}}
         fi
 
@@ -261,6 +273,50 @@ rule build_matrix:
             --QCfolder ${{qc_dir}} \\
             --binSize 5000 10000 20000 50000 100000
         """
+
+rule build_matrix_multi:
+    conda: 'hicexplorer_v2_2'
+    input:
+        read_one = 'Bam/{sample}_R1_multi_filt_final.bam',
+        read_two = 'Bam/{sample}_R2_multi_filt_final.bam',
+        #read_one = 'Bam/{sample}_R1{multi}final.bam',
+        #read_two = 'Bam/{sample}_R2{multi}final.bam',
+        #'Bam/{sample}_R1_final.bam',
+        #'Bam/{sample}_R2_final.bam',
+        #read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam',
+        #read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam',
+    output:
+        'Matrix/{sample}_multi_filt_final.mcool',
+    params:
+        mse_seq = 'TTAA',
+        nla_seq = 'CATG',
+        mse_dangling = 'TA',
+        nla_dangling = 'CATG',
+        mse_cuts = config['index'][species]['mse_cuts'],
+        nla_cuts = config['index'][species]['nla_cuts'],
+    threads: 8
+    shell:
+        """
+        qc_dir=FastQC/hicQC_{wildcards.sample}_multi_filt/
+        qc_dir=${{qc_dir/./_}}
+        echo ${{qc_dir}}
+        if [[ ! -d ${{qc_dir}} ]]; then
+            mkdir ${{qc_dir}}
+        fi
+
+        hicBuildMatrix --samFiles {input.read_one} {input.read_two} \\
+            --restrictionSequence {params.mse_seq} {params.nla_seq} \\
+            --danglingSequence {params.mse_dangling} {params.nla_dangling} \\
+            --restrictionCutFile {params.mse_cuts} {params.nla_cuts} \\
+            --threads {threads} \\
+            --inputBufferSize 400000 \\
+            --minMappingQuality 1 \\
+            -o {output} \\
+            --QCfolder ${{qc_dir}} \\
+            --binSize 5000 10000 20000 50000 100000
+        """
+
+
 
 rule run_flagstat:
     conda: 'samtools'
@@ -304,12 +360,12 @@ rule collect_flagstat:
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_dedup} -o FastQC/{wildcards.sample}_R1_dedup_flag_summary.tsv -s r1_dedup
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_dedup} -o FastQC/{wildcards.sample}_R2_dedup_flag_summary.tsv -s r2_dedup
 
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_sync} -o FastQC/{wildcards.sample}_R1_multi_sync_summary.tsv -s r1_multi_sync
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_sync} -o FastQC/{wildcards.sample}_R2_multi_sync_summary.tsv -s r2_multi_sync
+        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_sync} -o FastQC/{wildcards.sample}_R1_multi_sync_flag_summary.tsv -s r1_multi_sync
+        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_sync} -o FastQC/{wildcards.sample}_R2_multi_sync_flag_summary.tsv -s r2_multi_sync
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_dedup} -o FastQC/{wildcards.sample}_R1_multi_dedup_flag_summary.tsv -s r1_multi_dedup
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_dedup} -o FastQC/{wildcards.sample}_R2_multi_dedup_flag_summary.tsv -s r2_multi_dedup
 
-        for f in FastQC/{wildcards.sample}_*_flagstat_summary.tsv; do
+        for f in FastQC/{wildcards.sample}_*_flag_summary.tsv; do
             tail -n +2 $f >> {output}
         done
         """
