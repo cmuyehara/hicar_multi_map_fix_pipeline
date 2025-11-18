@@ -5,6 +5,8 @@ BigWig/
 Err_Out/
 Sam/
 Test_Files/
+Matrix/
+Tmp/
 .snakemake/
 *err*
 *out*
@@ -16,3 +18,4 @@ Test_Files/
 *bw
 *tsv
 *csv
+*mcool
