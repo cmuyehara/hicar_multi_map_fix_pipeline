@@ -67,38 +67,10 @@ rule all:
         expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
         'FastQC/multiqc_report.html'
 
-
-
-        #expand('Bam/{sample}.bwa.cSrt.bam', sample = sampleList),
-        #expand('Bam/{sample}_{read}.bwa.mapq.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2'], mFilter = ['', '.multi_filt']),
-        #expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
-
-
-        #expand('Bam/{sample}_{read}.bwa.mapq.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
-        #expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
-
-        #expand('Bam/{sample}_{read}.final.bam', sample = sampleList, read = ['R1', 'R2']),
-        #expand('Bam/{sample}_{read}.multi_filt.final.bam', sample = sampleList, read = ['R1', 'R2']),
-        #expand('Matrix/{sample}.final.mcool', sample = sampleList),
-        #expand('Matrix/{sample}.multi_filt.final.mcool', sample = sampleList),
-        #expand('BigWig/{sample}_{read}.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
-        #expand('BigWig/{sample}_{read}.multi_filt.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
-        #expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list)
-        #expand('FastQC/{sample}_flagstat_summary.tsv', sample = sampleList),
-        #expand('FastQC/{sample}_{read}_mapStats.bwa.mapq.tsv', sample = sampleList, read = ['R1', 'R2']),
-        #expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
-        #'FastQC/multiqc_report.html'
-
-        #expand('BigWig/{sample}_bwa_{read}_rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
-        #expand('FastQC/{sample}_bwa_{read}_mapStats.tsv', sample = sampleList, read = ['R1', 'R2']),
-        #expand('Bam/{sample}{step}.flagstat.txt', sample = sampleList, step = ['.bwa', '.bwa.mapq', 'R1.bwa.mapq', 'R2.bwa.mapq', 'R1.bwa.mapq.multi_filt', 'R1.bwa.mapq.multi_filt', 'R1.multi_filt.final', '_R2.multi_filt.final']),
-
 rule adapter_trim_reads:
     conda: 'trim_galore'
     input:
         unpack(getFastqFiles)
-        #r1 = 'Fastq/{sample}_R1.fastq.gz',
-        #r2 = 'Fastq/{sample}_R2.fastq.gz'
     output:
         r1 = 'Fastq/{sample}_R1_trim.fastq.gz',
         r2 = 'Fastq/{sample}_R2_trim.fastq.gz',
@@ -112,14 +84,9 @@ rule adapter_trim_reads:
         mv Fastq/{input.r2}_trimming_report.txt FastQC/
         """
 
-        #trim_galore --basename {wildcards.sample} --cores 4 --phred33 --quality 0 --stringency 10 --length 20 --fastqc -o Fastq/ --paired {input}
-#        mv Fastq/{wildcards.sample}_R1.fastq.gz_trimming_report.txt FastQC/
-#        mv Fastq/{wildcards.sample}_R2.fastq.gz_trimming_report.txt FastQC/
-
 rule align_reads_bwa:
     conda: 'bwa_0_7_18'
     input:
-        #getFastqFiles
         r1 = 'Fastq/{sample}_R1_trim.fastq.gz',
         r2 = 'Fastq/{sample}_R2_trim.fastq.gz',
     output:
@@ -350,10 +317,6 @@ rule collect_flagstat:
 rule make_bigwig:
     conda: "deeptools_3_5_1",
     input:
-        #bam = rules.remove_duplicates.output.bam,
-        #bam_ind = rules.index_bam.output
-        #'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam'
-        #'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam',
         bam = 'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam',
         bam_ind = 'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam.bai',
     output:
@@ -784,3 +747,33 @@ rule multiqc:
 
         #python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_filt} -o FastQC/{wildcards.sample}_R1_mapq_flag_summary.tsv -s r1_multi_mapq
         #python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_filt} -o FastQC/{wildcards.sample}_R2_mapq_flag_summary.tsv -s r2_multi_mapq
+        #expand('Bam/{sample}.bwa.cSrt.bam', sample = sampleList),
+        #expand('Bam/{sample}_{read}.bwa.mapq.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2'], mFilter = ['', '.multi_filt']),
+        #expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
+
+
+        #expand('Bam/{sample}_{read}.bwa.mapq.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
+        #expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
+
+        #expand('Bam/{sample}_{read}.final.bam', sample = sampleList, read = ['R1', 'R2']),
+        #expand('Bam/{sample}_{read}.multi_filt.final.bam', sample = sampleList, read = ['R1', 'R2']),
+        #expand('Matrix/{sample}.final.mcool', sample = sampleList),
+        #expand('Matrix/{sample}.multi_filt.final.mcool', sample = sampleList),
+        #expand('BigWig/{sample}_{read}.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
+        #expand('BigWig/{sample}_{read}.multi_filt.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
+        #expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list)
+        #expand('FastQC/{sample}_flagstat_summary.tsv', sample = sampleList),
+        #expand('FastQC/{sample}_{read}_mapStats.bwa.mapq.tsv', sample = sampleList, read = ['R1', 'R2']),
+        #expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
+        #'FastQC/multiqc_report.html'
+
+        #expand('BigWig/{sample}_bwa_{read}_rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2']),
+        #expand('FastQC/{sample}_bwa_{read}_mapStats.tsv', sample = sampleList, read = ['R1', 'R2']),
+        #expand('Bam/{sample}{step}.flagstat.txt', sample = sampleList, step = ['.bwa', '.bwa.mapq', 'R1.bwa.mapq', 'R2.bwa.mapq', 'R1.bwa.mapq.multi_filt', 'R1.bwa.mapq.multi_filt', 'R1.multi_filt.final', '_R2.multi_filt.final']),
+        #trim_galore --basename {wildcards.sample} --cores 4 --phred33 --quality 0 --stringency 10 --length 20 --fastqc -o Fastq/ --paired {input}
+#        mv Fastq/{wildcards.sample}_R1.fastq.gz_trimming_report.txt FastQC/
+#        mv Fastq/{wildcards.sample}_R2.fastq.gz_trimming_report.txt FastQC/
+        #bam = rules.remove_duplicates.output.bam,
+        #bam_ind = rules.index_bam.output
+        #'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam'
+        #'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam',
