@@ -113,8 +113,8 @@ rule convert_sam_filter_and_sort_bam:
         r2_coord = temp('Bam/{sample}_R2.bwa.mapq.cSrt.bam'),
         r1_name =  temp('Bam/{sample}_R1.bwa.mapq.nSrt.bam'),
         r2_name =  temp('Bam/{sample}_R2.bwa.mapq.nSrt.bam'),
-        bamIndex =      'Bam/{sample}_R1.bwa.bam.bai',
-        mapqIndex =     'Bam/{sample}_R2.bwa.mapq.bam.bai',
+        bamIndex =      'Bam/{sample}.bwa.cSrt.bam.bai',
+        mapqIndex =     'Bam/{sample}.bwa.mapq.bam.bai',
         r1_coordIndex = 'Bam/{sample}_R1.bwa.mapq.cSrt.bam.bai',
         r2_coordIndex = 'Bam/{sample}_R2.bwa.mapq.cSrt.bam.bai',
     threads: 8
@@ -295,7 +295,7 @@ rule collect_flagstat:
         'FastQC/{sample}_flagstat_summary.tsv'
     shell:
         """
-        echo "step\tdescription\tcount1\tcount1_percent\tcount2\tcount2_percent\ttotal > {output}
+        echo "step\tdescription\tcount1\tcount1_percent\tcount2\tcount2_percent\ttotal" > {output}
         python3.12 Src/restruct_flagstat_v2.py -i {input.all_align} -o FastQC/{wildcards.sample}_align_flag_summary.tsv -s all_align
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_mapq} -o FastQC/{wildcards.sample}_R1_mapq_flag_summary.tsv -s r1_mapq
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_mapq} -o FastQC/{wildcards.sample}_R2_mapq_flag_summary.tsv -s r2_mapq
