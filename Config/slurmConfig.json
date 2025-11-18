@@ -27,27 +27,41 @@
 		"mem" : "8G",
 		"time" : "4:00:00"
 	},
+	"sync_bams" : {
+		"mem" : "8G",
+		"time" : "2:00:00"
+	},
 	"sort_filtered_reads" : {
-		"threads" : "8"
+		"threads" : "8",
+		"time" : "2:00:00"
 	},
 	"remove_duplicates" : {
 		"time" : "4:00:00",
 		"mem" : "32G"
 	},
-	"run_flagstat" : {
-		"time" : "1:00:00"
-	},
-	"collect_flagstats" : {
-		"time" : "1:00:00"
+	"index_bam" : {
+		"time" : "30:00"
 	},
 	"build_matrix" : {
 		"threads" : "8",
 		"mem" : "64G",
 		"time" : "8:00:00"
 	},
-	"make_bigwig" : {
+	"run_flagstat" : {
 		"time" : "2:00:00",
+		"mem" : "8G"
+	},
+	"collect_flagstats" : {
+		"time" : "1:00:00",
+		"mem" : "4G"
+	},
+	"make_bigwig" : {
+		"time" : "4:00:00",
 		"mem" : "16G"
+	},
+	"simplify_names": {
+		"time" : "1:00:00",
+		"mem" : "4G"
 	},
 	"fastqc" : {
 		"time" : "1:00:00",
