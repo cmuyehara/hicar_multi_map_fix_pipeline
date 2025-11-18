@@ -41,10 +41,10 @@ rule all:
         expand('Fastq/{sample}_{read}_trim.fastq.gz', sample = sampleList, read = ['R1', 'R2']),
         ## Aligned, filtered, sorted BAM files
         expand('Bam/{sample}.bwa.cSrt.bam', sample = sampleList),
-        expand('Bam/{sample}_{read}.bwa.mapq.sync.nSrt.bam', read = ['R1', 'R2'], sample = sampleList),
-        expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.nSrt.bam', read = ['R1', 'R2'], sample = sampleList),
-        expand('Bam/{sample}_{read}.bwa.mapq.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2'], mFilter = ['', '.multi_filt']),
-        expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
+        #expand('Bam/{sample}_{read}.bwa.mapq.sync.nSrt.bam', read = ['R1', 'R2'], sample = sampleList),
+        #expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.nSrt.bam', read = ['R1', 'R2'], sample = sampleList),
+        #expand('Bam/{sample}_{read}.bwa.mapq.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2'], mFilter = ['', '.multi_filt']),
+        #expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.sync.cSrt.bam.bai', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam', sample = sampleList, read = ['R1', 'R2']),
         ## Matrix Files
@@ -170,34 +170,16 @@ rule filter_multimappers:
         """
         #python3.12 {params.source_dir}/filter_and_output_multi_mappers.py -i {input.r2} -o {output.r2_filter}
 
-rule sync_bams:
-    conda: 'base'
-    input:
-        #'Bam/{sample}_bwa_mapq_R1{filter}.bam', sample = sampleList, filter = ['.srt', '.multi_filt.dedup'])
-        r1_filter = 'Bam/{sample}_R1.bwa.{multi}.nSrt.bam',
-        r2_filter = 'Bam/{sample}_R2.bwa.{multi}.nSrt.bam',
-    output:
-        r1_sync = 'Bam/{sample}_R1.bwa.{multi}.sync.nSrt.bam',
-        r2_sync = 'Bam/{sample}_R2.bwa.{multi}.sync.nSrt.bam',
-        #r1_sync = temp('Bam/{sample}_R1.bwa.mapq{filter}.sync.nSrt.bam'),
-        #r2_sync = temp('Bam/{sample}_R2.bwa.mapq{filter}.sync.nSrt.bam'),
-    params:
-        source_dir = 'Src/'
-    shell:
-        """
-        python3.12 {params.source_dir}/sync_bams.py -r1 {input.r1_filter} -r2 {input.r2_filter} -o1 {output.r1_sync} -o2 {output.r2_sync}
-        """
-
 rule sort_filtered_reads:
     conda: 'samtools'
     input:
         #'Bam/{sample}{read}.bwa.mapq{filter}.sync.nSrt.bam'
-        'Bam/{sample}_{read}.bwa.{multi}.sync.nSrt.bam'
+        'Bam/{sample}_{read}.bwa.mapq.multi_filt.nSrt.bam'
     output:
         #bam = temp('Bam/{sample}_{read}.bwa.mapq{filter}.sync.cSrt.bam'),
         #bam_ind = 'Bam/{sample}_{read}.bwa.mapq{filter}.sync.cSrt.bam.bai'
-        bam = 'Bam/{sample}_{read}.bwa.{multi}.sync.cSrt.bam',
-        bam_ind = 'Bam/{sample}_{read}.bwa.{multi}.sync.cSrt.bam.bai',
+        bam = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.cSrt.bam',
+        bam_ind = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.cSrt.bam.bai',
     threads: 8
     shell:
         """
@@ -208,10 +190,10 @@ rule sort_filtered_reads:
 rule remove_duplicates:
     conda: 'picard'
     input:
-        bam = 'Bam/{sample}_{read}.bwa.{multi}.sync.cSrt.bam',
+        bam = 'Bam/{sample}_{read}.bwa.{multi}.cSrt.bam',
     output:
-        bam = 'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam',
-        metrics = 'Bam/{sample}_{read}.{multi}.final.dedup.metrics'
+        bam = 'Bam/{sample}_{read}.bwa.{multi}.dupRem.cSrt.bam',
+        metrics = 'Bam/{sample}_{read}.{multi}.dupRem.dedup.metrics'
     params:
         #picard = 'picard',
         tmp_dir = 'Tmp/'
@@ -220,6 +202,46 @@ rule remove_duplicates:
         picard MarkDuplicates I={input.bam} O={output.bam} M={output.metrics} REMOVE_DUPLICATES=true TMP_DIR={params.tmp_dir} ASSUME_SORTED=true
         """
         #samtools index {output.bam}
+
+rule name_sort_dup_free_bam:
+    conda: 'samtools'
+    input:
+        'Bam/{sample}_{read}.bwa.{multi}.dupRem.cSrt.bam',
+    output:
+        'Bam/{sample}_{read}.bwa.{multi}.dupRem.nSrt.bam',
+    threads: 8
+    shell:
+        """
+        samtools sort -@ {threads} -n {input} -o {output}
+        """
+
+rule sync_bams:
+    conda: 'base'
+    input:
+        #'Bam/{sample}_bwa_mapq_R1{filter}.bam', sample = sampleList, filter = ['.srt', '.multi_filt.dedup'])
+        r1_dupRem = 'Bam/{sample}_R1.bwa.{multi}.dupRem.nSrt.bam',
+        r2_dupRem = 'Bam/{sample}_R2.bwa.{multi}.dupRem.nSrt.bam',
+    output:
+        r1_sync = 'Bam/{sample}_R1.bwa.{multi}.dupRem.sync.nSrt.bam',
+        r2_sync = 'Bam/{sample}_R2.bwa.{multi}.dupRem.sync.nSrt.bam',
+    params:
+        source_dir = 'Src/'
+    shell:
+        """
+        python3.12 {params.source_dir}/sync_bams.py -r1 {input.r1_dupRem} -r2 {input.r2_dupRem} -o1 {output.r1_sync} -o2 {output.r2_sync}
+        """
+
+rule coord_sort_final:
+    conda: 'samtools'
+    input:
+        'Bam/{sample}_{read}.bwa.{multi}.dupRem.sync.nSrt.bam',
+    output:
+        'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam',
+    threads: 8
+    shell:
+        """
+        samtools sort -@ {threads} {input} -o {output}
+        """ 
 
 rule index_bam:
     conda: 'samtools'
@@ -230,6 +252,36 @@ rule index_bam:
     shell:
         """
         samtools index {input} 
+        """
+
+
+rule simplify_names:
+    """
+    Rename files to remove steps like 'bwa' and 'multi_filt' from the names. This is necessary b/c
+    snakemake has trouble parsing the wildcards when there are multiple optional parts in the names. 
+    """
+    input:
+        normal_bam = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam',
+        normal_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam.bai',
+        multi_bam = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam',
+        multi_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam.bai',
+        normal_bw = 'BigWig/{sample}_{read}.bwa.mapq.rpgcNorm.bw',
+        multi_bw = 'BigWig/{sample}_{read}.bwa.mapq.multi_filt.rpgcNorm.bw',
+    output:
+        multi_bam = 'Bam/{sample}_{read}_multi_filt_final.bam',
+        multi_bam_ind = 'Bam/{sample}_{read}_multi_filt_final.bam.bai',
+        normal_bam = 'Bam/{sample}_{read}_final.bam',
+        normal_bam_ind = 'Bam/{sample}_{read}_final.bam.bai',
+        multi_bw = 'BigWig/{sample}_{read}_multi_filt_rpgcNorm.bw',
+        normal_bw = 'BigWig/{sample}_{read}_rpgcNorm.bw',
+    shell:
+        """
+        mv {input.multi_bam} {output.multi_bam}
+        mv {input.multi_bam_ind} {output.multi_bam_ind}
+        mv {input.normal_bam} {output.normal_bam}
+        mv {input.normal_bam_ind} {output.normal_bam_ind}
+        mv {input.multi_bw} {output.multi_bw}
+        mv {input.normal_bw} {output.normal_bw}
         """
 
 rule build_matrix:
@@ -274,34 +326,6 @@ rule build_matrix:
             --binSize 5000 10000 20000 50000 100000
         """
 
-rule simplify_names:
-    """
-    Rename files to remove steps like 'bwa' and 'multi_filt' from the names. This is necessary b/c
-    snakemake has trouble parsing the wildcards when there are multiple optional parts in the names. 
-    """
-    input:
-        normal_bam = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam',
-        normal_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam.bai',
-        multi_bam = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam',
-        multi_bam_ind = 'Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam.bai',
-        normal_bw = 'BigWig/{sample}_{read}.bwa.mapq.rpgcNorm.bw',
-        multi_bw = 'BigWig/{sample}_{read}.bwa.mapq.multi_filt.rpgcNorm.bw',
-    output:
-        multi_bam = 'Bam/{sample}_{read}_multi_filt_final.bam',
-        multi_bam_ind = 'Bam/{sample}_{read}_multi_filt_final.bam.bai',
-        normal_bam = 'Bam/{sample}_{read}_final.bam',
-        normal_bam_ind = 'Bam/{sample}_{read}_final.bam.bai',
-        multi_bw = 'BigWig/{sample}_{read}_multi_filt_rpgcNorm.bw',
-        normal_bw = 'BigWig/{sample}_{read}_rpgcNorm.bw',
-    shell:
-        """
-        mv {input.multi_bam} {output.multi_bam}
-        mv {input.multi_bam_ind} {output.multi_bam_ind}
-        mv {input.normal_bam} {output.normal_bam}
-        mv {input.normal_bam_ind} {output.normal_bam_ind}
-        mv {input.multi_bw} {output.multi_bw}
-        mv {input.normal_bw} {output.normal_bw}
-        """
 
 rule build_matrix_multi:
     conda: 'hicexplorer_v2_2'
