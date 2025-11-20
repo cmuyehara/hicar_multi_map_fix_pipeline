@@ -1,0 +1,18 @@
+
+TO DO List:
+  - Test the restructure flagstat v2 script
+      - status: DONE
+  - add config files
+      - status: Ongoing. Added. Need to update.
+      - status: DONE
+  - fix index parameter during alignment
+      - status: DONE
+  - match output files to rule all
+      - status: DONE
+  - correct bigwig input/output names to work w/ new naming scheme
+      - status: DONE
+  - add fastqc steps. fastqc, multiqc, fastq_screen
+      - status: DONE
+  - perform a successful dry run
+      - status:
+  
