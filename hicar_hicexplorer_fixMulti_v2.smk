@@ -13,6 +13,9 @@ configfile: 'Config/config_snake.json'
 sampleDF = pd.read_csv('sampleSheet.csv', comment = '#')
 sampleList = list(set(list(sampleDF.sampleName)))
 
+print('Samples to be processed:')
+print('\n'.join(sampleList))
+
 # Functions  
 def getFastqFiles(wildcards):
     r1 = sampleDF.r1[(sampleDF.sampleName == wildcards.sample)].to_list()
@@ -29,11 +32,12 @@ species = 'mm10'
 step_list = [
     '.bwa',
      '_R1.bwa.mapq', '_R2.bwa.mapq',
-    '_R1.bwa.mapq.sync', '_R2.bwa.mapq.sync',
     '_R1.bwa.mapq.final', '_R2.bwa.mapq.final',
-    '_R1.bwa.mapq.multi_filt.sync', '_R2.bwa.mapq.multi_filt.sync',
     '_R1.bwa.mapq.multi_filt.final', '_R2.bwa.mapq.multi_filt.final'
 ]
+
+
+
 
 rule all:
     input:
@@ -48,12 +52,10 @@ rule all:
         expand('Bam/{sample}_{read}.bwa.mapq.final.cSrt.bam', sample = sampleList, read = ['R1', 'R2']),
         expand('Bam/{sample}_{read}.bwa.mapq.multi_filt.final.cSrt.bam', sample = sampleList, read = ['R1', 'R2']),
         ## Matrix Files
-        #expand('Matrix/{sample}.bwa.mapq.final.mcool', sample = sampleList),
-        #expand('Matrix/{sample}.bwa.mapq.multi_filt.final.mcool', sample = sampleList),
-        #expand('Matrix/{sample}{multi}final.mcool', sample = sampleList, multi = ['_', '_multi_filt_']),
+        expand('Matrix/{sample}_multi_filt_final.mcool', sample = sampleList),
         expand('Matrix/{sample}_final.mcool', sample = sampleList),
         # Flagstat files
-        #expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list),
+        expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list),
         expand('FastQC/{sample}_flagstat_summary.tsv', sample = sampleList),
         ## Bigwigs
         expand('BigWig/{sample}_{read}.bwa.{multi}.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2'], multi = ['mapq', 'mapq.multi_filt']),
@@ -68,6 +70,10 @@ rule all:
         expand('FastQC/{sample}_{read}_trim_fastqc.html', sample = sampleList, read = ['R1', 'R2']),
         expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
         'FastQC/multiqc_report.html'
+
+        #expand('Matrix/{sample}.bwa.mapq.final.mcool', sample = sampleList),
+        #expand('Matrix/{sample}{multi}final.mcool', sample = sampleList, multi = ['_', '_multi_filt_']),
+
 
 rule adapter_trim_reads:
     conda: 'trim_galore'
@@ -289,14 +295,6 @@ rule build_matrix:
     input:
         read_one = 'Bam/{sample}_R1.bwa.mapq.dupRem.sync.nSrt.bam',
         read_two = 'Bam/{sample}_R2.bwa.mapq.dupRem.sync.nSrt.bam'
-        #read_one = 'Bam/{sample}_R1_final.bam',
-        #read_two = 'Bam/{sample}_R2_final.bam',
-        #read_one = 'Bam/{sample}_R1{multi}final.bam',
-        #read_two = 'Bam/{sample}_R2{multi}final.bam',
-        #'Bam/{sample}_R1_final.bam',
-        #'Bam/{sample}_R2_final.bam',
-        #read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam',
-        #read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam',
     output:
         'Matrix/{sample}_final.mcool',
     params:
@@ -328,20 +326,11 @@ rule build_matrix:
             --binSize 5000 10000 20000 50000 100000
         """
 
-
 rule build_matrix_multi:
     conda: 'hicexplorer_v2_2'
     input:
         read_one = 'Bam/{sample}_R1.bwa.mapq.multi_filt.dupRem.sync.nSrt.bam',
         read_two = 'Bam/{sample}_R2.bwa.mapq.multi_filt.dupRem.sync.nSrt.bam',
-        #read_one = 'Bam/{sample}_R1_multi_filt_final.bam',
-        #read_two = 'Bam/{sample}_R2_multi_filt_final.bam',
-        #read_one = 'Bam/{sample}_R1{multi}final.bam',
-        #read_two = 'Bam/{sample}_R2{multi}final.bam',
-        #'Bam/{sample}_R1_final.bam',
-        #'Bam/{sample}_R2_final.bam',
-        #read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam',
-        #read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam',
     output:
         'Matrix/{sample}_multi_filt_final.mcool',
     params:
@@ -394,14 +383,10 @@ rule collect_flagstat:
         all_align = 'FastQC/{sample}.bwa.flagstat.txt',
         r1_mapq = 'FastQC/{sample}_R1.bwa.mapq.flagstat.txt',
         r2_mapq = 'FastQC/{sample}_R2.bwa.mapq.flagstat.txt',
-        r1_sync = 'FastQC/{sample}_R1.bwa.mapq.sync.flagstat.txt',
-        r2_sync = 'FastQC/{sample}_R2.bwa.mapq.sync.flagstat.txt',
-        r1_dedup = 'FastQC/{sample}_R1.bwa.mapq.final.flagstat.txt',
-        r2_dedup = 'FastQC/{sample}_R2.bwa.mapq.final.flagstat.txt',
-        r1_multi_sync = 'FastQC/{sample}_R1.bwa.mapq.multi_filt.sync.flagstat.txt',
-        r2_multi_sync = 'FastQC/{sample}_R2.bwa.mapq.multi_filt.sync.flagstat.txt',
-        r1_multi_dedup = 'FastQC/{sample}_R1.bwa.mapq.multi_filt.final.flagstat.txt',
-        r2_multi_dedup = 'FastQC/{sample}_R2.bwa.mapq.multi_filt.final.flagstat.txt'
+        r1_dedup_sync = 'FastQC/{sample}_R1.bwa.mapq.final.flagstat.txt',
+        r2_dedup_sync = 'FastQC/{sample}_R2.bwa.mapq.final.flagstat.txt',
+        r1_multi_dedup_sync = 'FastQC/{sample}_R1.bwa.mapq.multi_filt.final.flagstat.txt',
+        r2_multi_dedup_sync = 'FastQC/{sample}_R2.bwa.mapq.multi_filt.final.flagstat.txt',
     output:
         'FastQC/{sample}_flagstat_summary.tsv'
     shell:
@@ -410,20 +395,21 @@ rule collect_flagstat:
         python3.12 Src/restruct_flagstat_v2.py -i {input.all_align} -o FastQC/{wildcards.sample}_align_flag_summary.tsv -s all_align
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_mapq} -o FastQC/{wildcards.sample}_R1_mapq_flag_summary.tsv -s r1_mapq
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_mapq} -o FastQC/{wildcards.sample}_R2_mapq_flag_summary.tsv -s r2_mapq
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_sync} -o FastQC/{wildcards.sample}_R1_mapq_flag_summary.tsv -s r1_sync
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_sync} -o FastQC/{wildcards.sample}_R2_mapq_flag_summary.tsv -s r2_sync
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_dedup} -o FastQC/{wildcards.sample}_R1_dedup_flag_summary.tsv -s r1_dedup
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_dedup} -o FastQC/{wildcards.sample}_R2_dedup_flag_summary.tsv -s r2_dedup
+        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_dedup_sync} -o FastQC/{wildcards.sample}_R1_dedup_flag_summary.tsv -s r1_dedup_sync
+        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_dedup_sync} -o FastQC/{wildcards.sample}_R2_dedup_flag_summary.tsv -s r2_dedup_sync
 
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_sync} -o FastQC/{wildcards.sample}_R1_multi_sync_flag_summary.tsv -s r1_multi_sync
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_sync} -o FastQC/{wildcards.sample}_R2_multi_sync_flag_summary.tsv -s r2_multi_sync
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_dedup} -o FastQC/{wildcards.sample}_R1_multi_dedup_flag_summary.tsv -s r1_multi_dedup
-        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_dedup} -o FastQC/{wildcards.sample}_R2_multi_dedup_flag_summary.tsv -s r2_multi_dedup
+        python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_dedup_sync} -o FastQC/{wildcards.sample}_R1_multi_dedup_flag_summary.tsv -s r1_multi_dedup_sync
+        python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_dedup_sync} -o FastQC/{wildcards.sample}_R2_multi_dedup_flag_summary.tsv -s r2_multi_dedup_sync
 
         for f in FastQC/{wildcards.sample}_*_flag_summary.tsv; do
             tail -n +2 $f >> {output}
         done
         """
+
+        #python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_sync} -o FastQC/{wildcards.sample}_R1_multi_sync_flag_summary.tsv -s r1_multi_sync
+        #python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_sync} -o FastQC/{wildcards.sample}_R2_multi_sync_flag_summary.tsv -s r2_multi_sync
+        #python3.12 Src/restruct_flagstat_v2.py -i {input.r1_sync} -o FastQC/{wildcards.sample}_R1_mapq_flag_summary.tsv -s r1_sync
+        #python3.12 Src/restruct_flagstat_v2.py -i {input.r2_sync} -o FastQC/{wildcards.sample}_R2_mapq_flag_summary.tsv -s r2_sync
 
 rule make_bigwig:
     conda: "deeptools_3_5_1",
@@ -861,3 +847,33 @@ rule multiqc:
         #bam_ind = rules.index_bam.output
         #'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam'
         #'Bam/{sample}_{read}.bwa.{multi}.final.cSrt.bam',
+
+        #all_align = 'FastQC/{sample}.bwa.flagstat.txt',
+        #r1_mapq = 'FastQC/{sample}_R1.bwa.mapq.flagstat.txt',
+        #r2_mapq = 'FastQC/{sample}_R2.bwa.mapq.flagstat.txt',
+        #r1_sync = 'FastQC/{sample}_R1.bwa.mapq.sync.flagstat.txt',
+        #r2_sync = 'FastQC/{sample}_R2.bwa.mapq.sync.flagstat.txt',
+        #r1_dedup = 'FastQC/{sample}_R1.bwa.mapq.final.flagstat.txt',
+        #r2_dedup = 'FastQC/{sample}_R2.bwa.mapq.final.flagstat.txt',
+        #r1_multi_sync = 'FastQC/{sample}_R1.bwa.mapq.multi_filt.sync.flagstat.txt',
+        #r2_multi_sync = 'FastQC/{sample}_R2.bwa.mapq.multi_filt.sync.flagstat.txt',
+        #r1_multi_dedup = 'FastQC/{sample}_R1.bwa.mapq.multi_filt.final.flagstat.txt',
+        #r2_multi_dedup = 'FastQC/{sample}_R2.bwa.mapq.multi_filt.final.flagstat.txt'
+
+        #read_one = 'Bam/{sample}_R1_final.bam',
+        #read_two = 'Bam/{sample}_R2_final.bam',
+        #read_one = 'Bam/{sample}_R1{multi}final.bam',
+        #read_two = 'Bam/{sample}_R2{multi}final.bam',
+        #'Bam/{sample}_R1_final.bam',
+        #'Bam/{sample}_R2_final.bam',
+        #read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam',
+        #read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam',
+
+        #read_one = 'Bam/{sample}_R1_multi_filt_final.bam',
+        #read_two = 'Bam/{sample}_R2_multi_filt_final.bam',
+        #read_one = 'Bam/{sample}_R1{multi}final.bam',
+        #read_two = 'Bam/{sample}_R2{multi}final.bam',
+        #'Bam/{sample}_R1_final.bam',
+        #'Bam/{sample}_R2_final.bam',
+        #read_one = 'Bam/{sample}_R1.bwa.{multi}.final.cSrt.bam',
+        #read_two = 'Bam/{sample}_R2.bwa.{multi}.final.cSrt.bam',
