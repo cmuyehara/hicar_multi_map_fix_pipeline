@@ -1,0 +1,7 @@
+#!/home/fs01/cmu4001/micromamba/envs/hicexplorer_v2_2/bin/python
+# -*- coding: utf-8 -*-
+
+from hicexplorer.hicBuildMatrix import main
+
+if __name__ == "__main__":
+    main()
