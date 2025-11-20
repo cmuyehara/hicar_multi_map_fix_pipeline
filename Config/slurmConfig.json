@@ -47,6 +47,11 @@
 		"mem" : "64G",
 		"time" : "8:00:00"
 	},
+	"build_matrix_multi" : {
+		"threads" : "8",
+		"mem" : "64G",
+		"time" : "8:00:00"
+	},
 	"run_flagstat" : {
 		"time" : "2:00:00",
 		"mem" : "8G"
