@@ -1,0 +1,11 @@
+#group,replicate,fastq_1,fastq_2,md5_1,md5_2,description,index
+#mESC_8t_250k_HiCAR,1,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L007_R1_001.fastq.gz,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L007_R2_001.fastq.gz,86c2f5b091e7340242a315aade26c642,5cc46c3ad57268690abc025a14c2a717
+#mESC_8t_250k_HiCAR,1,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L008_R1_001.fastq.gz,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L008_R2_001.fastq.gz,d73d2e21f4bdf565ff786cea5b125494,974b3d5bb2bce503a30bbd6f29f65378
+#mESC_16t_250k_HiCAR,1,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L007_R1_001.fastq.gz,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L007_R2_001.fastq.gz,af55c2e05625e690a97c18d79b8a36c0,d8584f0f3d0f86101f4ece3921d1687d
+#mESC_16t_250k_HiCAR,1,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L008_R1_001.fastq.gz,/athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L008_R2_001.fastq.gz,c0d92b3ff23509b86f7436c6879e9b85,cd08ccf9f7363ad1e7192b707fb4a6c1
+
+cat /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L007_R1_001.fastq.gz /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L008_R1_001.fastq.gz > ../Fastq/mESC_8t_250k_HiCAR_rep1_R1.fastq.gz
+cat /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L007_R2_001.fastq.gz /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u6_S775_L008_R2_001.fastq.gz > ../Fastq/mESC_8t_250k_HiCAR_rep1_R2.fastq.gz
+cat /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L007_R1_001.fastq.gz /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L008_R1_001.fastq.gz > ../Fastq/mESC_16t_250k_HiCAR_rep1_R1.fastq.gz
+cat /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L007_R2_001.fastq.gz /athena/apostoloulab/scratch/cmu4001/Apostolou-CU-19818_2025_11_03/Fastq/u7_S776_L008_R2_001.fastq.gz > ../Fastq/mESC_16t_250k_HiCAR_rep1_R2.fastq.gz
+
