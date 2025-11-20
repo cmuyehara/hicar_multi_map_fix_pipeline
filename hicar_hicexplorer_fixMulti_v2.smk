@@ -287,8 +287,10 @@ rule simplify_names:
 rule build_matrix:
     conda: 'hicexplorer_v2_2'
     input:
-        read_one = 'Bam/{sample}_R1_final.bam',
-        read_two = 'Bam/{sample}_R2_final.bam',
+        read_one = 'Bam/{sample}_R1.bwa.mapq.dupRem.sync.nSrt.bam',
+        read_two = 'Bam/{sample}_R2.bwa.mapq.dupRem.sync.nSrt.bam'
+        #read_one = 'Bam/{sample}_R1_final.bam',
+        #read_two = 'Bam/{sample}_R2_final.bam',
         #read_one = 'Bam/{sample}_R1{multi}final.bam',
         #read_two = 'Bam/{sample}_R2{multi}final.bam',
         #'Bam/{sample}_R1_final.bam',
@@ -314,7 +316,7 @@ rule build_matrix:
             mkdir ${{qc_dir}}
         fi
 
-        hicBuildMatrix --samFiles {input.read_one} {input.read_two} \\
+        ./Src/hicBuildMatrix.py --samFiles {input.read_one} {input.read_two} \\
             --restrictionSequence {params.mse_seq} {params.nla_seq} \\
             --danglingSequence {params.mse_dangling} {params.nla_dangling} \\
             --restrictionCutFile {params.mse_cuts} {params.nla_cuts} \\
@@ -330,8 +332,10 @@ rule build_matrix:
 rule build_matrix_multi:
     conda: 'hicexplorer_v2_2'
     input:
-        read_one = 'Bam/{sample}_R1_multi_filt_final.bam',
-        read_two = 'Bam/{sample}_R2_multi_filt_final.bam',
+        read_one = 'Bam/{sample}_R1.bwa.mapq.multi_filt.dupRem.sync.nSrt.bam',
+        read_two = 'Bam/{sample}_R2.bwa.mapq.multi_filt.dupRem.sync.nSrt.bam',
+        #read_one = 'Bam/{sample}_R1_multi_filt_final.bam',
+        #read_two = 'Bam/{sample}_R2_multi_filt_final.bam',
         #read_one = 'Bam/{sample}_R1{multi}final.bam',
         #read_two = 'Bam/{sample}_R2{multi}final.bam',
         #'Bam/{sample}_R1_final.bam',
@@ -357,7 +361,7 @@ rule build_matrix_multi:
             mkdir ${{qc_dir}}
         fi
 
-        hicBuildMatrix --samFiles {input.read_one} {input.read_two} \\
+        ./Src/hicBuildMatrix.py --samFiles {input.read_one} {input.read_two} \\
             --restrictionSequence {params.mse_seq} {params.nla_seq} \\
             --danglingSequence {params.mse_dangling} {params.nla_dangling} \\
             --restrictionCutFile {params.mse_cuts} {params.nla_cuts} \\
