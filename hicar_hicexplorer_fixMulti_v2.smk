@@ -88,8 +88,9 @@ rule adapter_trim_reads:
         trim_galore --basename {wildcards.sample} --cores 4 --phred33 --quality 0 --stringency 10 --length 20 --fastqc -o Fastq/ --paired {input.r1} {input.r2}
         mv Fastq/{wildcards.sample}_val_1.fq.gz {output.r1}
         mv Fastq/{wildcards.sample}_val_2.fq.gz {output.r2}
-        mv Fastq/{input.r1}_trimming_report.txt FastQC/
-        mv Fastq/{input.r2}_trimming_report.txt FastQC/
+
+        mv {input.r1}_trimming_report.txt FastQC/
+        mv {input.r2}_trimming_report.txt FastQC/
         """
 
 rule align_reads_bwa:
