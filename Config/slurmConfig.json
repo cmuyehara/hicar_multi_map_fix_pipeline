@@ -17,7 +17,8 @@
 	},
 	"convert_sam_filter_and_sort_bam" : {
 		"threads" : "8",
-		"mem" : "4G"
+		"mem" : "16G",
+		"time" : "8:00:00"
 	},
 	"collect_multi_map_stats" : {
 		"time" : "1:00:00",
