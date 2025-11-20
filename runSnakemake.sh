@@ -41,7 +41,7 @@ snakemake -s ${snakeFile} \
 	--conda-frontend conda \
 	--latency-wait 200 \
 	--printshellcmds \
-	--cluster  \
+	--cluster \
 	"sbatch --partition={cluster.partition} -J {rule} -o Err_Out/slurm-%j.out -e Err_Out/slurm-%j.err -N1 -n {cluster.threads} --time {cluster.time} --mem={cluster.mem}" \
 	--jobs 500 
 
