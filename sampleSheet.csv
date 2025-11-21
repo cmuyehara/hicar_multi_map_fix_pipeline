@@ -1,5 +1,7 @@
 sampleName,r1,r2,condition,replicate
+#example,Fastq/example_R1.fastq.gz,Fastq/example_R2.fastq.gz,example_condition,1
 #mESC_8_tn5_1hr_HICAR_sample_rep1,Fastq/u1_S20_L002_R1_001_sample.fastq.gz,Fastq/u1_S20_L002_R2_001_sample.fastq.gz,8ul_tn5_1hr,1
-mESC_8t_250k_HiCAR_rep1,Fastq/mESC_8t_250k_HiCAR_rep1_R1.fastq.gz,Fastq/mESC_8t_250k_HiCAR_rep1_R2.fastq.gz,8t_250k,1
-mESC_16t_250k_HiCAR_rep1,Fastq/mESC_16t_250k_HiCAR_rep1_R1.fastq.gz,Fastq/mESC_16t_250k_HiCAR_rep1_R2.fastq.gz,16t_250k,1
+#mESC_8t_250k_HiCAR_rep1,Fastq/mESC_8t_250k_HiCAR_rep1_R1.fastq.gz,Fastq/mESC_8t_250k_HiCAR_rep1_R2.fastq.gz,8t_250k,1
+#mESC_16t_250k_HiCAR_rep1,Fastq/mESC_16t_250k_HiCAR_rep1_R1.fastq.gz,Fastq/mESC_16t_250k_HiCAR_rep1_R2.fastq.gz,16t_250k,1
+
 
