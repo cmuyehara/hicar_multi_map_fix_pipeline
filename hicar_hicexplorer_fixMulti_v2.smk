@@ -69,7 +69,8 @@ rule all:
         ## QC
         expand('FastQC/{sample}_{read}_trim_fastqc.html', sample = sampleList, read = ['R1', 'R2']),
         expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
-        'FastQC/multiqc_report.html'
+        'FastQC/multiqc.done'
+        #'FastQC/multiqc_report.html'
 
         #expand('Matrix/{sample}.bwa.mapq.final.mcool', sample = sampleList),
         #expand('Matrix/{sample}{multi}final.mcool', sample = sampleList, multi = ['_', '_multi_filt_']),
@@ -315,7 +316,7 @@ rule build_matrix:
             mkdir ${{qc_dir}}
         fi
 
-        ./Src/hicBuildMatrix.py --samFiles {input.read_one} {input.read_two} \\
+        python ./Src/hicBuildMatrix.py --samFiles {input.read_one} {input.read_two} \\
             --restrictionSequence {params.mse_seq} {params.nla_seq} \\
             --danglingSequence {params.mse_dangling} {params.nla_dangling} \\
             --restrictionCutFile {params.mse_cuts} {params.nla_cuts} \\
@@ -351,7 +352,7 @@ rule build_matrix_multi:
             mkdir ${{qc_dir}}
         fi
 
-        ./Src/hicBuildMatrix.py --samFiles {input.read_one} {input.read_two} \\
+        python ./Src/hicBuildMatrix.py --samFiles {input.read_one} {input.read_two} \\
             --restrictionSequence {params.mse_seq} {params.nla_seq} \\
             --danglingSequence {params.mse_dangling} {params.nla_dangling} \\
             --restrictionCutFile {params.mse_cuts} {params.nla_cuts} \\
@@ -472,7 +473,7 @@ rule multiqc:
         expand('FastQC/{sample}_{read}_trim_fastqc.zip', sample = sampleList, read = ['R1', 'R2']),
         expand('FastQC/{sample}_{read}_trim_screen.html', sample = sampleList, read = ['R1', 'R2']),
     output:
-        'FastQC/multiqc_report.html'
+        touch('FastQC/multiqc.done')
     params:
         fastqc_dir = 'FastQC/'
     shell:
@@ -480,6 +481,7 @@ rule multiqc:
         multiqc {params.fastqc_dir} -o {params.fastqc_dir}
         """
 
+        #'FastQC/multiqc_report.html'
 
 #rule merge_bam:
 #    conda: 'samtools'
