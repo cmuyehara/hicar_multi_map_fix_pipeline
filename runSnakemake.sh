@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=16:00:00
+#SBATCH --time=24:00:00
 
 #SBATCH --mem=4G
 
@@ -43,7 +43,9 @@ snakemake -s ${snakeFile} \
 	--printshellcmds \
 	--cluster \
 	"sbatch --partition={cluster.partition} -J {rule} -o Err_Out/slurm-%j.out -e Err_Out/slurm-%j.err -N1 -n {cluster.threads} --time {cluster.time} --mem={cluster.mem}" \
-	--jobs 500 
+	--jobs 500 \
+	--keep-going
+	#--until collect_flagstat
 
 	#--profile cut-n-run-pipeline/Config/slurmConfig.json \
 
