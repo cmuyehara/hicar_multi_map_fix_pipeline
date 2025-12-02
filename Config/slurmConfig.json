@@ -38,7 +38,7 @@
 	},
 	"remove_duplicates" : {
 		"time" : "4:00:00",
-		"mem" : "32G"
+		"mem" : "64G"
 	},
 	"index_bam" : {
 		"time" : "30:00"
