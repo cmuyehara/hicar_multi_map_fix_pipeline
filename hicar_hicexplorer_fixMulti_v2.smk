@@ -21,6 +21,7 @@ def getFastqFiles(wildcards):
     r1 = sampleDF.r1[(sampleDF.sampleName == wildcards.sample)].to_list()
     r2 = sampleDF.r2[(sampleDF.sampleName == wildcards.sample)].to_list()
     return({'r1' : r1[0], 'r2' : r2[0]})
+    #print({'r1' : r1[0], 'r2' : r2[0]})
 
 # **********************************************
 # Species to be used. EDIT THIS AS NEEDED
@@ -35,9 +36,6 @@ step_list = [
     '_R1.bwa.mapq.final', '_R2.bwa.mapq.final',
     '_R1.bwa.mapq.multi_filt.final', '_R2.bwa.mapq.multi_filt.final'
 ]
-
-
-
 
 rule all:
     input:
@@ -57,6 +55,7 @@ rule all:
         # Flagstat files
         expand('FastQC/{sample}{step}.flagstat.txt', sample = sampleList, step = step_list),
         expand('FastQC/{sample}_flagstat_summary.tsv', sample = sampleList),
+        expand('FastQC/{sample}_read_counts.tsv', sample = sampleList),
         ## Bigwigs
         expand('BigWig/{sample}_{read}.bwa.{multi}.rpgcNorm.bw', sample = sampleList, read = ['R1', 'R2'], multi = ['mapq', 'mapq.multi_filt']),
         ## Final versions of files  
@@ -204,11 +203,14 @@ rule remove_duplicates:
         metrics = 'Bam/{sample}_{read}.{multi}.dupRem.dedup.metrics'
     params:
         #picard = 'picard',
-        tmp_dir = 'Tmp/'
+        tmp_dir = 'Tmp/',
+        xmx = '16g'
     shell:
         """
-        picard MarkDuplicates I={input.bam} O={output.bam} M={output.metrics} REMOVE_DUPLICATES=true TMP_DIR={params.tmp_dir} ASSUME_SORTED=true
+        picard -Xmx{params.xmx} MarkDuplicates I={input.bam} O={output.bam} M={output.metrics} REMOVE_DUPLICATES=true TMP_DIR={params.tmp_dir} ASSUME_SORTED=true
+
         """
+        #picard -Xmx{params.xmx} MarkDuplicates INPUT= {input.bam} METRICS_FILE={log} OUTPUT={output.bam} VALIDATION_STRINGENCY=LENIENT REMOVE_DUPLICATES=true ASSUME_SORTED=true
         #samtools index {output.bam}
 
 rule name_sort_dup_free_bam:
@@ -379,9 +381,39 @@ rule run_flagstat:
         samtools flagstat {input} > {output}
         """
 
+
+# For rule collect flagstat, I would like to rewrite the first section as a loop following the pattern below 
+# There is no need to run the same command 8 times. It makes the code look crazye and makes it harder to add or remove files in the future.
+# Instead, I would like to loop through the input files and run the same command on each file. The example below shows how to loop through named inputs.
+# The input names will be the "step" names I want to use in the collect_flagstat rule.
+
+# rule test:
+#     input:
+#         alpha = 'foo.txt',
+#         beta  = 'bar.txt'
+#     output:
+#         charlie = 'foobar.txt'
+#     params: 
+#          input_items = lambda wildcards,input: " ".join(
+#             f"{name}={path}" for name, path in input.items())
+#     shell:
+#         """ 
+#         for i in {params.input_items};
+#         do 
+#             iName=${{i%%=*}}
+#             iFile=${{i##*=}}
+#             echo "named input: ${{iName}}"
+#             echo "named output: ${{iFile}}"
+#         done
+#         echo "hello" > {output}
+#         """
+
 rule collect_flagstat:
     conda: 'base'
     input:
+        unpack(getFastqFiles),
+        r1_trim = 'Fastq/{sample}_R1_trim.fastq.gz',
+        r2_trim = 'Fastq/{sample}_R2_trim.fastq.gz',
         all_align = 'FastQC/{sample}.bwa.flagstat.txt',
         r1_mapq = 'FastQC/{sample}_R1.bwa.mapq.flagstat.txt',
         r2_mapq = 'FastQC/{sample}_R2.bwa.mapq.flagstat.txt',
@@ -390,22 +422,39 @@ rule collect_flagstat:
         r1_multi_dedup_sync = 'FastQC/{sample}_R1.bwa.mapq.multi_filt.final.flagstat.txt',
         r2_multi_dedup_sync = 'FastQC/{sample}_R2.bwa.mapq.multi_filt.final.flagstat.txt',
     output:
-        'FastQC/{sample}_flagstat_summary.tsv'
+        flag_summary = 'FastQC/{sample}_flagstat_summary.tsv',
+        read_summary = 'FastQC/{sample}_read_counts.tsv'
     shell:
         """
-        echo "step\tdescription\tcount1\tcount1_percent\tcount2\tcount2_percent\ttotal" > {output}
+        echo "step\tdescription\tcount1\tcount1_percent\tcount2\tcount2_percent\ttotal" > {output.flag_summary}
         python3.12 Src/restruct_flagstat_v2.py -i {input.all_align} -o FastQC/{wildcards.sample}_align_flag_summary.tsv -s all_align
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_mapq} -o FastQC/{wildcards.sample}_R1_mapq_flag_summary.tsv -s r1_mapq
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_mapq} -o FastQC/{wildcards.sample}_R2_mapq_flag_summary.tsv -s r2_mapq
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_dedup_sync} -o FastQC/{wildcards.sample}_R1_dedup_flag_summary.tsv -s r1_dedup_sync
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_dedup_sync} -o FastQC/{wildcards.sample}_R2_dedup_flag_summary.tsv -s r2_dedup_sync
-
         python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_dedup_sync} -o FastQC/{wildcards.sample}_R1_multi_dedup_flag_summary.tsv -s r1_multi_dedup_sync
         python3.12 Src/restruct_flagstat_v2.py -i {input.r2_multi_dedup_sync} -o FastQC/{wildcards.sample}_R2_multi_dedup_flag_summary.tsv -s r2_multi_dedup_sync
 
         for f in FastQC/{wildcards.sample}_*_flag_summary.tsv; do
-            tail -n +2 $f >> {output}
+            tail -n +2 $f >> {output.flag_summary}
         done
+
+        count_fq(){{
+            local fq_file=$1
+            local count=$(zcat $fq_file | wc -l)
+            echo $((count / 4))
+        }}
+        fq_one=$(count_fq {input.r1})
+        fq_two=$(count_fq {input.r2})
+        fq_one_trim=$(count_fq {input.r1_trim})
+        fq_two_trim=$(count_fq {input.r2_trim})
+
+        echo "step\tcount" > {output.read_summary}
+        cat {output.flag_summary} | grep '\tmapped' | cut -f 1,3 >> {output.read_summary}
+        echo "r1_raw_fastq\t${{fq_one}}" >> {output.read_summary}
+        echo "r2_raw_fastq\t${{fq_two}}" >> {output.read_summary}
+        echo "r1_trimmed_fastq\t${{fq_one_trim}}" >> {output.read_summary}
+        echo "r2_trimmed_fastq\t${{fq_two_trim}}" >> {output.read_summary}
         """
 
         #python3.12 Src/restruct_flagstat_v2.py -i {input.r1_multi_sync} -o FastQC/{wildcards.sample}_R1_multi_sync_flag_summary.tsv -s r1_multi_sync
